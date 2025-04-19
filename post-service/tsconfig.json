@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",                        // Where to output the compiled JavaScript
+    "rootDir": "./src",                        // Root directory of the source files
+    "moduleResolution": "node",                // Resolves modules in the Node.js style
+    "resolveJsonModule": true,                 // Allow importing of JSON files
+    "strict": true,                            // Enable strict type-checking
+    "esModuleInterop": true,                   // Enable interoperability with CommonJS
+    "module": "CommonJS",                      // Ensure TypeScript compiles to CommonJS for Express
+    "target": "ES2020",                        // Use a modern target like ES2020 for better performance
+    "skipLibCheck": true,                      // Skip checking types in node_modules for faster builds
+    "baseUrl": "./src",                        // Base URL for relative imports
+    "typeRoots": [
+      "./node_modules/@types",                 // Default node types
+      "./src/@types"                           // Custom types directory
+    ],
+    "types": ["node", "express"]               // Include types for Express and Node.js
+  },
+  "include": [
+    "./src/**/*.ts",                             // Include all TypeScript files
+    "./src/@types/**/*.d.ts"                     // Include custom type definitions
+  ],
+  "exclude": [
+    "node_modules",                            // Exclude node_modules folder
+    "dist"                                     // Exclude output directory
+  ]
+}
