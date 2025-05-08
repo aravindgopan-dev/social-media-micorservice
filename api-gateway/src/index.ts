@@ -43,6 +43,7 @@ const ratelimit = rateLimit({
   }),
 });
 
+//setting up proxy for media server
 
 
 
@@ -56,7 +57,10 @@ app.use(express.json())
 app.use(ratelimit)
 app.use(errorHandler)
 
-
+app.use((req,res,next)=>{
+  console.log(req.url)
+  next();
+})
 
 
 
@@ -121,8 +125,36 @@ app.use(
     },
   })
 );
+const MEDIA_SERVICE=process.env._SERVICE_URL ||"http://localhost:3003"
 
+app.use("/v1/media",(req,res,next)=>{
+  console.log("hitting herer");
+  next()
+})
+app.use(
+  "/v1/media",
+  validatToken,
+  proxy(MEDIA_SERVICE, {
+    ...proxyOptions,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      proxyReqOpts.headers=proxyReqOpts.headers ||{}
+      proxyReqOpts.headers["x-user-id"] = (srcReq as any).user.userId;
+      if (!srcReq.headers["content-type"]?.startsWith("multipart/form-data")) {
+        proxyReqOpts.headers["Content-Type"] = "application/json";
+      }
 
+      return proxyReqOpts;
+    },
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+      logger.info(
+        `Response received from media service: ${proxyRes.statusCode}`
+      );
+
+      return proxyResData;
+    },
+    parseReqBody: false,
+  })
+);
 
 
 const PORT= process.env.PORT ||3000

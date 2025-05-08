@@ -3,8 +3,9 @@ import mongoose, { Document } from "mongoose";
 export  interface postInterface extends Document{
     user:string;
     content:string;
-    mediaUrl:[string];
-    createdAt:Date
+    mediaId:[string];
+    createdAt:Date;
+    _id:string
 }
 
 

@@ -1,7 +1,5 @@
 import { Router, Request, Response, Handler, RequestHandler } from "express";
-import { createPost,getAllPost} from "../post-controller/post-controller";
-import { authenticateRequest } from "../middleware/authMiddleware";
-
+import { createPost,getAllPost,getPost,deletPost} from "../post-controller/post-controller";
 const router = Router();
 
 // Middleware works fine because we use `req as AuthReq` inside the middleware itself
@@ -10,5 +8,7 @@ const router = Router();
 
 router.post("/create-post",createPost)
 router.get("/getallpost",getAllPost)
+router.get("/:id",getPost)
+router.delete("/:id",deletPost)
 
 export default router;  

@@ -8,7 +8,7 @@ import { RateLimiterRedis } from "rate-limiter-flexible";
 import Redis from "ioredis";
 import {rateLimit} from "express-rate-limit"
 import { RedisStore } from 'rate-limit-redis'
-import postRouter from "./post-router/post-routes"
+import mediaRouter from "./media-router/media-router"
 import errorHandler from "./middleware/erroHandler";
 import { authenticateRequest } from "./middleware/authMiddleware";
 import connectRabbitmq from "./utils/rabbitmq";
@@ -55,13 +55,8 @@ app.use((req, res, next) => {
 
 
   
-app.use("/api/posts",authenticateRequest as RequestHandler)
 
-app.use("/api/posts/",(req,res,next)=>{
-  req.redisClient=redisClient;
-   next()
-
-},postRouter)
+app.use("/api/media",mediaRouter)
 
 
 app.use(errorHandler)
@@ -69,10 +64,11 @@ app.use(errorHandler)
 async function startServer() {
   try{
     await connectRabbitmq()
-    app.listen(process.env.PORT ||3002,()=>{
-    logger.info(`Post service running on port ${process.env.PORT||3002}`)
+    app.listen(process.env.PORT ||3003,()=>{
+    logger.info(`media service running on port ${process.env.PORT||3002}`)
 
     })
+
 
 
 
@@ -91,5 +87,3 @@ startServer();
 process.on("unhandledRejection",(reason,promise)=>{
   logger.error("unhandled Rejection at",promise,reason)
 })
-
-
