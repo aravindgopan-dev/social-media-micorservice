@@ -39,7 +39,12 @@ export const createPost=async(req:Request ,res:Response):Promise<void>=>{
 
 
         await newlyCreatedPost.save()
-
+        await publishEvent("post.created",{
+            postId:newlyCreatedPost._id.toString(),
+            useId:newlyCreatedPost.user.toString(),
+            content:newlyCreatedPost.content,
+            createdAt:newlyCreatedPost.createdAt
+        })
 
         await invlaidateCahce(req,newlyCreatedPost._id.toString());
         logger.info("post created successfully")
@@ -141,23 +146,25 @@ export const deletPost=async(req:Request,res:Response)=>{
         const post =await Post.findOneAndDelete({
             _id:req.params.id,
             user:(req as any).user.userId
-        })
+        });
 
         if(!post){
             res.status(404).json({
                 message:"Post not found",
                 success:false
-            })
+            });
+            return
         }
         await invlaidateCahce(req,req.params.id)
         res.json({
             message:"post deleted success"
-        })
-         await publishEvent('post.deleted',{
+        });
+
+        await publishEvent('post.deleted',{
             postId:post?._id.toString(),
             userId:(req as any).user.userId,
             mediaId:post?.mediaId
-         })
+         });
 
     }
     //publish post envent
@@ -166,7 +173,7 @@ export const deletPost=async(req:Request,res:Response)=>{
         res.json({
             success:false,
             message:"Error creating post"
-        })
+        });
     }
 }
 

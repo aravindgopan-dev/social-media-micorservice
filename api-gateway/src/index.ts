@@ -157,6 +157,33 @@ app.use(
 );
 
 
+
+const SEARCH_SERVICE=process.env.SEARCH_SERVICE_URL ||"http://localhost:3004"
+app.use(
+  "/v1/posts",
+  validatToken,
+  proxy(SEARCH_SERVICE, {
+    ...proxyOptions,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      proxyReqOpts.headers=proxyReqOpts.headers ||{}
+      proxyReqOpts.headers["Content-Type"] = "application/json";
+      proxyReqOpts.headers["x-user-id"] = (srcReq as any).user.userId;
+
+      return proxyReqOpts;
+    },
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+      logger.info(
+        `Response received from Post service: ${proxyRes.statusCode}`
+      );
+
+      return proxyResData;
+    },
+  })
+);
+
+
+
+
 const PORT= process.env.PORT ||3000
 app.listen(PORT,()=>{
     logger.info(`api gateway runnin  on ${PORT}`)

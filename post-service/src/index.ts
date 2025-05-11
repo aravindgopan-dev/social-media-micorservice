@@ -72,7 +72,7 @@ async function startServer() {
     app.listen(process.env.PORT ||3002,()=>{
     logger.info(`Post service running on port ${process.env.PORT||3002}`)
 
-    })
+    });
 
 
 

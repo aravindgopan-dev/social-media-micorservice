@@ -11,7 +11,8 @@ import { RedisStore } from 'rate-limit-redis'
 import mediaRouter from "./media-router/media-router"
 import errorHandler from "./middleware/erroHandler";
 import { authenticateRequest } from "./middleware/authMiddleware";
-import connectRabbitmq from "./utils/rabbitmq";
+import connectRabbitmq, { consumeEvent } from "./utils/rabbitmq";
+import { handlePostDeleted } from "./event/media-event-handler";
 dotenv.config()
 
 
@@ -63,9 +64,10 @@ app.use(errorHandler)
 
 async function startServer() {
   try{
-    await connectRabbitmq()
+    await connectRabbitmq();
+    await consumeEvent("post.deleted",handlePostDeleted);
     app.listen(process.env.PORT ||3003,()=>{
-    logger.info(`media service running on port ${process.env.PORT||3002}`)
+    logger.info(`media service running on port ${process.env.PORT||3002}`);
 
     })
 
@@ -74,8 +76,8 @@ async function startServer() {
 
   }
   catch(error){
-    logger.error("Error while connecting")
-    process.exit(1)  
+    logger.error("Error while connecting");
+    process.exit(1);
   }
 
 }
@@ -85,5 +87,5 @@ startServer();
 
 
 process.on("unhandledRejection",(reason,promise)=>{
-  logger.error("unhandled Rejection at",promise,reason)
+  logger.error("unhandled Rejection at",promise,reason);
 })

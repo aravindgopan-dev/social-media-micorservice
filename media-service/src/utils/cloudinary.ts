@@ -15,6 +15,8 @@ export const uploadMediaToCloudinary = (file:any): Promise<any> => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         resource_type: "auto",
+        timeout: 60000
+      
       },
       (error, result) => {
         if (error) {
