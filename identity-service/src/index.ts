@@ -32,7 +32,8 @@ if (process.env.MONGODB_URI) {
 }
 
 
-const redisClient = new Redis();
+const redisClient = new Redis(process.env.REDIS_URL || "redis://redis:6379")
+
 redisClient.on("connect", () => {
   logger.info("redis client connected");
 });

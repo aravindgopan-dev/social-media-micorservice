@@ -28,7 +28,8 @@ if (process.env.MONGODB_URI) {
 }
 
 
-const redisClient = new Redis();
+const redisClient = new Redis("redis://redis:6379")
+
 redisClient.on("connect", () => {
   logger.info("redis client connected");
 });
@@ -53,7 +54,7 @@ app.use((req, res, next) => {
 });
 
 
-
+connectRabbitmq()
   
 app.use("/api/posts",authenticateRequest as RequestHandler)
 
@@ -68,7 +69,7 @@ app.use(errorHandler)
 
 async function startServer() {
   try{
-    await connectRabbitmq()
+    
     app.listen(process.env.PORT ||3002,()=>{
     logger.info(`Post service running on port ${process.env.PORT||3002}`)
 

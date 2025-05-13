@@ -1,5 +1,5 @@
 import dotenv from "dotenv"
-import express, { NextFunction ,Response} from "express"
+import express, {Request, NextFunction ,Response} from "express"
 import cors from "cors"
 import Redis from "ioredis"
 import logger from "./utils/logger"
@@ -9,12 +9,40 @@ import {RedisStore} from "rate-limit-redis"
 import proxy from "express-http-proxy"
 import errorHandler from "./middleware./erroHandler"
 import { validatToken } from "./middleware./authMiddleware"
+import promClient from "prom-client"
 dotenv.config()
+
+
 
 const app= express();
 
+
+
+//registery
+const register=new promClient.Registry();
+
+promClient.collectDefaultMetrics({register})
+
+const httprequest=new promClient.Counter({
+  name:"http_request",
+  help:"Total number of request",
+  labelNames:["method","route","status","user_agent"]
+})
+register.registerMetric(httprequest)
+
+
+
+//promuthus
+app.get("/metrics", async (req: Request, res: Response) => {
+  res.set("Content-Type", register.contentType);
+  res.end(await register.metrics()); // Call the metrics function
+});
+
+
+
+
 //reddis connection
-const redisClient= new Redis()
+const redisClient = new Redis(process.env.REDIS_URL || "redis://redis:6379")
 
 redisClient.on("connect",()=>{
     logger.info('reddis connected')
@@ -22,6 +50,8 @@ redisClient.on("connect",()=>{
 redisClient.on("error",()=>{  
     logger.error("error while connecting")
 })
+
+
 
 //ip based ratelimiting 
 const ratelimit = rateLimit({
@@ -50,7 +80,7 @@ const ratelimit = rateLimit({
 
 
 
-
+//middlewares
 app.use(helmet())
 app.use(cors())
 app.use(express.json())
